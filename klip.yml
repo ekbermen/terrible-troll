@@ -1,0 +1,2085 @@
+# =====================================================================
+# KLIPIX - acik kaynak, reklamsiz, filigransiz video editoru (yapilandirma)
+# Uygulama bu dosyayi okuyup arayuzu, araclari ve Kli yapay zekasini kurar.
+# Motor: Flutter + ffmpeg_kit  |  Yapay zeka: Gemini (Kli)
+# Bir ozelligi kapatmak icin: enabled: false
+# =====================================================================
+
+app:
+  name: Klipix
+  package: com.jjj.klipix
+  version: 0.1.0
+  build_number: 1
+  min_android_sdk: 24
+  target_android_sdk: 34
+  ads: false
+  watermark: false
+  analytics: false
+  account_required: false
+  offline_first: true
+  default_language: tr
+  license: MIT
+  repository: github.com/KULLANICI/klipix
+
+theme:
+  default_mode: dark
+  radius: 12
+  font: Inter
+  modes:
+    dark:
+      background: "#0F0F10"
+      surface: "#1A1A1C"
+      surface_alt: "#242427"
+      primary: "#f93838"
+      primary_pressed: "#d92b2b"
+      accent: "#ffb703"
+      text: "#FFFFFF"
+      text_muted: "#9E9E9E"
+      divider: "#2E2E32"
+      success: "#2ECC71"
+      warning: "#F1C40F"
+      danger: "#E74C3C"
+      timeline_bg: "#141416"
+      playhead: "#FFFFFF"
+      clip_video: "#3A6EA5"
+      clip_audio: "#2E8B57"
+      clip_text: "#B8860B"
+      clip_sticker: "#8E44AD"
+    light:
+      background: "#FAFAFA"
+      surface: "#FFFFFF"
+      surface_alt: "#F0F0F2"
+      primary: "#f93838"
+      primary_pressed: "#d92b2b"
+      accent: "#fb8500"
+      text: "#111111"
+      text_muted: "#6B6B6B"
+      divider: "#DDDDDD"
+      success: "#27AE60"
+      warning: "#E0A800"
+      danger: "#C0392B"
+      timeline_bg: "#EDEDEF"
+      playhead: "#111111"
+      clip_video: "#5B8DEF"
+      clip_audio: "#3CB371"
+      clip_text: "#DAA520"
+      clip_sticker: "#A569BD"
+  spacing: { xs: 4, sm: 8, md: 12, lg: 16, xl: 24 }
+  animation: { fast_ms: 120, normal_ms: 220, slow_ms: 400, curve: easeInOut }
+
+screens:
+  home:
+    top_bar: [logo, search, settings]
+    sections: [new_project, recent_projects, templates, kli_suggestions]
+    fab: { icon: add, label: Yeni Proje, color: primary }
+  media_picker:
+    tabs: [videos, photos, albums, stock_free]
+    multi_select: true
+    max_items: 100
+    sort: [newest, oldest, duration]
+  editor:
+    top_bar: [back, project_name, undo, redo, export_button]
+    preview: { aspect_ratios: ['9:16','16:9','1:1','4:5','21:9'], safe_area_guides: true, grid: true }
+    timeline: { tracks: [video, overlay, audio, text, sticker, effect], zoom: true, snap: true, magnetic: true }
+    bottom_toolbar: [cut, speed, text, audio, filter, effect, transition, sticker, crop, rotate, volume, kli]
+  export:
+    resolutions: [480, 720, 1080, 1440, 2160]
+    fps: [24, 25, 30, 50, 60]
+    format: [mp4, mov, gif, webm]
+    show_estimated_size: true
+    show_progress_notification: true
+  settings:
+    sections: [general, editor, export, kli_api, kli, storage, about]
+    language_picker: true
+    theme_picker: true
+    clear_cache: true
+  kli_chat:
+    style: bottom_sheet
+    quick_chips: [slow_motion, gecis_ekle, surpriz_yap, ne_yakisir, altyazi, muzik_oner]
+    show_history: true
+    voice_input: false
+
+features:
+  cut: { enabled: true, note: "Kes / bol / birlestir" }
+  trim: { enabled: true, note: "Uc kirpma" }
+  split: { enabled: true, note: "Playhead'den bol" }
+  delete: { enabled: true, note: "Klibi sil" }
+  duplicate: { enabled: true, note: "Klibi cogalt" }
+  reorder: { enabled: true, note: "Surukle birak siralama" }
+  speed: { enabled: true, note: "0.1x - 100x hiz" }
+  speed_curve: { enabled: true, note: "Hiz egrisi" }
+  reverse: { enabled: true, note: "Ters oynat" }
+  freeze_frame: { enabled: true, note: "Kare dondur" }
+  crop: { enabled: true, note: "Kirp" }
+  rotate: { enabled: true, note: "Dondur" }
+  flip: { enabled: true, note: "Aynala" }
+  zoom_keyframes: { enabled: true, note: "Anahtar kare ile zoom" }
+  opacity: { enabled: true, note: "Opaklik" }
+  blend_modes: { enabled: true, note: "Karisim modlari" }
+  volume: { enabled: true, note: "Ses seviyesi" }
+  fade_audio: { enabled: true, note: "Ses yumusatma" }
+  extract_audio: { enabled: true, note: "Videodan ses ayir" }
+  voiceover: { enabled: true, note: "Seslendirme kaydi" }
+  text: { enabled: true, note: "Metin" }
+  stickers: { enabled: true, note: "Cikartma" }
+  filters: { enabled: true, note: "Filtre" }
+  effects: { enabled: true, note: "Efekt" }
+  transitions: { enabled: true, note: "Gecis" }
+  pip: { enabled: true, note: "Resim icinde resim" }
+  green_screen: { enabled: true, note: "Chroma key" }
+  stabilize: { enabled: true, note: "Titreme giderme" }
+  auto_caption: { enabled: true, note: "Otomatik altyazi (Gemini)" }
+  bg_remove: { enabled: false, note: "Arka plan silme (sonra eklenecek)" }
+  cloud_sync: { enabled: false, note: "Bulut - kapali, sunucu yok" }
+  templates: { enabled: true, note: "Sablonlar" }
+  beat_sync: { enabled: false, note: "Ritme gore kes (deneysel)" }
+  keyframes: { enabled: true, note: "Genel anahtar kareler" }
+  masks: { enabled: true, note: "Maskeler" }
+  grid_guides: { enabled: true, note: "Kilavuz cizgileri" }
+  autosave: { enabled: true, note: "Otomatik kaydet" }
+  undo_redo: { enabled: true, note: "Geri al / ileri al" }
+
+filters:
+  default_intensity: 80
+  items:
+    - id: f001_sicak_gun
+      name: "Sicak Gun"
+      brightness: -0.07
+      contrast: 0.93
+      saturation: 1.32
+      temperature: -26
+      vignette: 0.41
+      ffmpeg: "eq=brightness=-0.07:contrast=0.93:saturation=1.32"
+    - id: f002_soguk_sabah
+      name: "Soguk Sabah"
+      brightness: -0.16
+      contrast: 1.14
+      saturation: 1.6
+      temperature: -17
+      vignette: 0.02
+      ffmpeg: "eq=brightness=-0.16:contrast=1.14:saturation=1.6"
+    - id: f003_retro_90
+      name: "Retro 90"
+      brightness: -0.03
+      contrast: 0.88
+      saturation: 0.7
+      temperature: -3
+      vignette: 0.03
+      ffmpeg: "eq=brightness=-0.03:contrast=0.88:saturation=0.7"
+    - id: f004_sinematik
+      name: "Sinematik"
+      brightness: 0.03
+      contrast: 1.32
+      saturation: 1.29
+      temperature: 7
+      vignette: 0.47
+      ffmpeg: "eq=brightness=0.03:contrast=1.32:saturation=1.29"
+    - id: f005_noir
+      name: "Noir"
+      brightness: 0.03
+      contrast: 1.05
+      saturation: 1.67
+      temperature: -28
+      vignette: 0.28
+      ffmpeg: "eq=brightness=0.03:contrast=1.05:saturation=1.67"
+    - id: f006_gun_batimi
+      name: "Gun Batimi"
+      brightness: -0.15
+      contrast: 1.06
+      saturation: 1.19
+      temperature: 6
+      vignette: 0.15
+      ffmpeg: "eq=brightness=-0.15:contrast=1.06:saturation=1.19"
+    - id: f007_neon_gece
+      name: "Neon Gece"
+      brightness: 0.13
+      contrast: 0.94
+      saturation: 1.24
+      temperature: 10
+      vignette: 0.09
+      ffmpeg: "eq=brightness=0.13:contrast=0.94:saturation=1.24"
+    - id: f008_solgun_film
+      name: "Solgun Film"
+      brightness: -0.16
+      contrast: 1.21
+      saturation: 1.22
+      temperature: 9
+      vignette: 0.1
+      ffmpeg: "eq=brightness=-0.16:contrast=1.21:saturation=1.22"
+    - id: f009_canli
+      name: "Canli"
+      brightness: 0.07
+      contrast: 1.06
+      saturation: 0.95
+      temperature: 7
+      vignette: 0.46
+      ffmpeg: "eq=brightness=0.07:contrast=1.06:saturation=0.95"
+    - id: f010_yumusak_cilt
+      name: "Yumusak Cilt"
+      brightness: -0.06
+      contrast: 0.97
+      saturation: 0.8
+      temperature: 19
+      vignette: 0.12
+      ffmpeg: "eq=brightness=-0.06:contrast=0.97:saturation=0.8"
+    - id: f011_kontrast_plus
+      name: "Kontrast Plus"
+      brightness: 0.03
+      contrast: 1.11
+      saturation: 1.56
+      temperature: 16
+      vignette: 0.22
+      ffmpeg: "eq=brightness=0.03:contrast=1.11:saturation=1.56"
+    - id: f012_mat_siyah
+      name: "Mat Siyah"
+      brightness: 0.04
+      contrast: 0.89
+      saturation: 1.16
+      temperature: -20
+      vignette: 0.38
+      ffmpeg: "eq=brightness=0.04:contrast=0.89:saturation=1.16"
+    - id: f013_pastel
+      name: "Pastel"
+      brightness: -0.14
+      contrast: 1.09
+      saturation: 0.64
+      temperature: 12
+      vignette: 0.04
+      ffmpeg: "eq=brightness=-0.14:contrast=1.09:saturation=0.64"
+    - id: f014_vintage_sepya
+      name: "Vintage Sepya"
+      brightness: 0.02
+      contrast: 1.24
+      saturation: 1.5
+      temperature: -9
+      vignette: 0.35
+      ffmpeg: "eq=brightness=0.02:contrast=1.24:saturation=1.5"
+    - id: f015_kis_havasi
+      name: "Kis Havasi"
+      brightness: 0.04
+      contrast: 1.14
+      saturation: 1.1
+      temperature: 23
+      vignette: 0.05
+      ffmpeg: "eq=brightness=0.04:contrast=1.14:saturation=1.1"
+    - id: f016_yaz_tatili
+      name: "Yaz Tatili"
+      brightness: -0.09
+      contrast: 1.2
+      saturation: 0.67
+      temperature: 16
+      vignette: 0.35
+      ffmpeg: "eq=brightness=-0.09:contrast=1.2:saturation=0.67"
+    - id: f017_orman
+      name: "Orman"
+      brightness: 0.06
+      contrast: 1.35
+      saturation: 1.5
+      temperature: -12
+      vignette: 0.36
+      ffmpeg: "eq=brightness=0.06:contrast=1.35:saturation=1.5"
+    - id: f018_okyanus
+      name: "Okyanus"
+      brightness: 0.15
+      contrast: 1.02
+      saturation: 1.63
+      temperature: -8
+      vignette: 0.08
+      ffmpeg: "eq=brightness=0.15:contrast=1.02:saturation=1.63"
+    - id: f019_cyberpunk
+      name: "Cyberpunk"
+      brightness: -0.15
+      contrast: 0.88
+      saturation: 1.45
+      temperature: -22
+      vignette: 0.37
+      ffmpeg: "eq=brightness=-0.15:contrast=0.88:saturation=1.45"
+    - id: f020_sonbahar
+      name: "Sonbahar"
+      brightness: -0.04
+      contrast: 1.31
+      saturation: 1.15
+      temperature: -20
+      vignette: 0.22
+      ffmpeg: "eq=brightness=-0.04:contrast=1.31:saturation=1.15"
+    - id: f021_pembe_ruya
+      name: "Pembe Ruya"
+      brightness: 0.02
+      contrast: 1.29
+      saturation: 1.5
+      temperature: 25
+      vignette: 0.28
+      ffmpeg: "eq=brightness=0.02:contrast=1.29:saturation=1.5"
+    - id: f022_altin_saat
+      name: "Altin Saat"
+      brightness: 0.08
+      contrast: 1.34
+      saturation: 1.35
+      temperature: -6
+      vignette: 0.48
+      ffmpeg: "eq=brightness=0.08:contrast=1.34:saturation=1.35"
+    - id: f023_gri_ton
+      name: "Gri Ton"
+      brightness: -0.14
+      contrast: 0.94
+      saturation: 0.86
+      temperature: -16
+      vignette: 0.01
+      ffmpeg: "eq=brightness=-0.14:contrast=0.94:saturation=0.86"
+    - id: f024_dramatik
+      name: "Dramatik"
+      brightness: 0.13
+      contrast: 0.94
+      saturation: 0.91
+      temperature: -21
+      vignette: 0.21
+      ffmpeg: "eq=brightness=0.13:contrast=0.94:saturation=0.91"
+    - id: f025_temiz_beyaz
+      name: "Temiz Beyaz"
+      brightness: -0.05
+      contrast: 1.13
+      saturation: 1.65
+      temperature: 14
+      vignette: 0.43
+      ffmpeg: "eq=brightness=-0.05:contrast=1.13:saturation=1.65"
+    - id: f026_lo_fi
+      name: "Lo-Fi"
+      brightness: 0.18
+      contrast: 1.18
+      saturation: 1.41
+      temperature: -1
+      vignette: 0.45
+      ffmpeg: "eq=brightness=0.18:contrast=1.18:saturation=1.41"
+    - id: f027_polaroid
+      name: "Polaroid"
+      brightness: 0.11
+      contrast: 1.29
+      saturation: 1.48
+      temperature: -5
+      vignette: 0.2
+      ffmpeg: "eq=brightness=0.11:contrast=1.29:saturation=1.48"
+    - id: f028_vhs
+      name: "VHS"
+      brightness: -0.04
+      contrast: 1.09
+      saturation: 1.04
+      temperature: -18
+      vignette: 0.03
+      ffmpeg: "eq=brightness=-0.04:contrast=1.09:saturation=1.04"
+    - id: f029_super_8
+      name: "Super 8"
+      brightness: -0.12
+      contrast: 0.93
+      saturation: 0.97
+      temperature: -27
+      vignette: 0.05
+      ffmpeg: "eq=brightness=-0.12:contrast=0.93:saturation=0.97"
+    - id: f030_teal_orange
+      name: "Teal Orange"
+      brightness: 0.03
+      contrast: 1.12
+      saturation: 1.64
+      temperature: 9
+      vignette: 0.01
+      ffmpeg: "eq=brightness=0.03:contrast=1.12:saturation=1.64"
+    - id: f031_kirmizi_vurgu
+      name: "Kirmizi Vurgu"
+      brightness: 0.15
+      contrast: 1.16
+      saturation: 0.76
+      temperature: -14
+      vignette: 0.48
+      ffmpeg: "eq=brightness=0.15:contrast=1.16:saturation=0.76"
+    - id: f032_mavi_saat
+      name: "Mavi Saat"
+      brightness: 0.04
+      contrast: 1.09
+      saturation: 0.73
+      temperature: 1
+      vignette: 0.5
+      ffmpeg: "eq=brightness=0.04:contrast=1.09:saturation=0.73"
+    - id: f033_yesil_matrix
+      name: "Yesil Matrix"
+      brightness: -0.01
+      contrast: 1.09
+      saturation: 0.69
+      temperature: -24
+      vignette: 0.37
+      ffmpeg: "eq=brightness=-0.01:contrast=1.09:saturation=0.69"
+    - id: f034_mor_sis
+      name: "Mor Sis"
+      brightness: 0.1
+      contrast: 1.09
+      saturation: 1.36
+      temperature: 3
+      vignette: 0.01
+      ffmpeg: "eq=brightness=0.1:contrast=1.09:saturation=1.36"
+    - id: f035_kum_firtinasi
+      name: "Kum Firtinasi"
+      brightness: 0.18
+      contrast: 1.11
+      saturation: 0.76
+      temperature: 4
+      vignette: 0.46
+      ffmpeg: "eq=brightness=0.18:contrast=1.11:saturation=0.76"
+    - id: f036_sehir_isigi
+      name: "Sehir Isigi"
+      brightness: 0.1
+      contrast: 1.0
+      saturation: 1.31
+      temperature: -25
+      vignette: 0.35
+      ffmpeg: "eq=brightness=0.1:contrast=1.0:saturation=1.31"
+    - id: f037_portre
+      name: "Portre"
+      brightness: -0.1
+      contrast: 1.03
+      saturation: 0.78
+      temperature: 19
+      vignette: 0.11
+      ffmpeg: "eq=brightness=-0.1:contrast=1.03:saturation=0.78"
+    - id: f038_yemek
+      name: "Yemek"
+      brightness: 0.02
+      contrast: 1.1
+      saturation: 1.3
+      temperature: 9
+      vignette: 0.41
+      ffmpeg: "eq=brightness=0.02:contrast=1.1:saturation=1.3"
+    - id: f039_manzara
+      name: "Manzara"
+      brightness: 0.19
+      contrast: 1.28
+      saturation: 1.49
+      temperature: 22
+      vignette: 0.2
+      ffmpeg: "eq=brightness=0.19:contrast=1.28:saturation=1.49"
+    - id: f040_spor
+      name: "Spor"
+      brightness: 0.12
+      contrast: 0.95
+      saturation: 1.14
+      temperature: 16
+      vignette: 0.01
+      ffmpeg: "eq=brightness=0.12:contrast=0.95:saturation=1.14"
+    - id: f041_gece_cekimi
+      name: "Gece Cekimi"
+      brightness: -0.19
+      contrast: 0.99
+      saturation: 0.89
+      temperature: 14
+      vignette: 0.3
+      ffmpeg: "eq=brightness=-0.19:contrast=0.99:saturation=0.89"
+    - id: f042_parlak_gunes
+      name: "Parlak Gunes"
+      brightness: -0.06
+      contrast: 1.25
+      saturation: 1.4
+      temperature: -8
+      vignette: 0.48
+      ffmpeg: "eq=brightness=-0.06:contrast=1.25:saturation=1.4"
+    - id: f043_bulutlu
+      name: "Bulutlu"
+      brightness: -0.05
+      contrast: 0.96
+      saturation: 0.85
+      temperature: -18
+      vignette: 0.17
+      ffmpeg: "eq=brightness=-0.05:contrast=0.96:saturation=0.85"
+    - id: f044_hafif_pus
+      name: "Hafif Pus"
+      brightness: -0.01
+      contrast: 1.34
+      saturation: 1.27
+      temperature: -30
+      vignette: 0.24
+      ffmpeg: "eq=brightness=-0.01:contrast=1.34:saturation=1.27"
+    - id: f045_sert_golge
+      name: "Sert Golge"
+      brightness: 0.06
+      contrast: 1.25
+      saturation: 0.69
+      temperature: 12
+      vignette: 0.06
+      ffmpeg: "eq=brightness=0.06:contrast=1.25:saturation=0.69"
+    - id: f046_duman
+      name: "Duman"
+      brightness: -0.04
+      contrast: 1.21
+      saturation: 0.82
+      temperature: 26
+      vignette: 0.09
+      ffmpeg: "eq=brightness=-0.04:contrast=1.21:saturation=0.82"
+    - id: f047_ruya
+      name: "Rüya"
+      brightness: 0.12
+      contrast: 1.02
+      saturation: 1.48
+      temperature: 16
+      vignette: 0.2
+      ffmpeg: "eq=brightness=0.12:contrast=1.02:saturation=1.48"
+    - id: f048_anime
+      name: "Anime"
+      brightness: -0.04
+      contrast: 1.32
+      saturation: 1.4
+      temperature: -20
+      vignette: 0.5
+      ffmpeg: "eq=brightness=-0.04:contrast=1.32:saturation=1.4"
+    - id: f049_cizgi_film
+      name: "Cizgi Film"
+      brightness: -0.19
+      contrast: 1.15
+      saturation: 1.11
+      temperature: 11
+      vignette: 0.07
+      ffmpeg: "eq=brightness=-0.19:contrast=1.15:saturation=1.11"
+    - id: f050_kalem_cizim
+      name: "Kalem Cizim"
+      brightness: 0.13
+      contrast: 1.34
+      saturation: 1.32
+      temperature: -8
+      vignette: 0.08
+      ffmpeg: "eq=brightness=0.13:contrast=1.34:saturation=1.32"
+    - id: f051_eski_foto
+      name: "Eski Foto"
+      brightness: 0.02
+      contrast: 0.86
+      saturation: 1.48
+      temperature: 16
+      vignette: 0.32
+      ffmpeg: "eq=brightness=0.02:contrast=0.86:saturation=1.48"
+    - id: f052_siyah_beyaz_sert
+      name: "Siyah Beyaz Sert"
+      brightness: 0.01
+      contrast: 1.32
+      saturation: 1.08
+      temperature: 25
+      vignette: 0.1
+      ffmpeg: "eq=brightness=0.01:contrast=1.32:saturation=1.08"
+    - id: f053_pop_art
+      name: "Pop Art"
+      brightness: 0.15
+      contrast: 0.86
+      saturation: 0.83
+      temperature: 2
+      vignette: 0.12
+      ffmpeg: "eq=brightness=0.15:contrast=0.86:saturation=0.83"
+    - id: f054_kodak_tonu
+      name: "Kodak Tonu"
+      brightness: 0.03
+      contrast: 0.98
+      saturation: 1.06
+      temperature: -22
+      vignette: 0.03
+      ffmpeg: "eq=brightness=0.03:contrast=0.98:saturation=1.06"
+    - id: f055_fuji_tonu
+      name: "Fuji Tonu"
+      brightness: 0.1
+      contrast: 1.3
+      saturation: 1.33
+      temperature: 22
+      vignette: 0.45
+      ffmpeg: "eq=brightness=0.1:contrast=1.3:saturation=1.33"
+    - id: f056_gece_mavisi
+      name: "Gece Mavisi"
+      brightness: -0.03
+      contrast: 1.31
+      saturation: 1.15
+      temperature: 4
+      vignette: 0.08
+      ffmpeg: "eq=brightness=-0.03:contrast=1.31:saturation=1.15"
+    - id: f057_kizil_gok
+      name: "Kizil Gok"
+      brightness: 0.0
+      contrast: 1.29
+      saturation: 1.45
+      temperature: 8
+      vignette: 0.0
+      ffmpeg: "eq=brightness=0.0:contrast=1.29:saturation=1.45"
+    - id: f058_limon
+      name: "Limon"
+      brightness: 0.12
+      contrast: 0.94
+      saturation: 1.12
+      temperature: 16
+      vignette: 0.06
+      ffmpeg: "eq=brightness=0.12:contrast=0.94:saturation=1.12"
+    - id: f059_nane
+      name: "Nane"
+      brightness: -0.18
+      contrast: 1.19
+      saturation: 1.18
+      temperature: 0
+      vignette: 0.39
+      ffmpeg: "eq=brightness=-0.18:contrast=1.19:saturation=1.18"
+    - id: f060_kahve
+      name: "Kahve"
+      brightness: -0.16
+      contrast: 1.13
+      saturation: 0.87
+      temperature: -13
+      vignette: 0.02
+      ffmpeg: "eq=brightness=-0.16:contrast=1.13:saturation=0.87"
+
+effects:
+  items:
+    - id: e001_glitch
+      name: "Glitch"
+      type: glitch
+      intensity: 42
+      duration_ms: 1500
+      loop: false
+      category: glitch
+      premium_in_capcut: true   # Klipix'te ucretsiz
+    - id: e002_chromatic
+      name: "RGB Kaydirma"
+      type: chromatic
+      intensity: 38
+      duration_ms: 1000
+      loop: true
+      category: retro
+      premium_in_capcut: true   # Klipix'te ucretsiz
+    - id: e003_shake
+      name: "Titresim"
+      type: shake
+      intensity: 95
+      duration_ms: 500
+      loop: false
+      category: weather
+      premium_in_capcut: true   # Klipix'te ucretsiz
+    - id: e004_blur
+      name: "Bulaniklik"
+      type: blur
+      intensity: 95
+      duration_ms: 1500
+      loop: false
+      category: retro
+      premium_in_capcut: true   # Klipix'te ucretsiz
+    - id: e005_motion_blur
+      name: "Hareket Bulanigi"
+      type: motion_blur
+      intensity: 61
+      duration_ms: 1500
+      loop: false
+      category: motion
+      premium_in_capcut: true   # Klipix'te ucretsiz
+    - id: e006_zoom_pulse
+      name: "Zoom Vurusu"
+      type: zoom_pulse
+      intensity: 55
+      duration_ms: 1000
+      loop: true
+      category: glitch
+      premium_in_capcut: true   # Klipix'te ucretsiz
+    - id: e007_flash
+      name: "Flash"
+      type: flash
+      intensity: 80
+      duration_ms: 1000
+      loop: true
+      category: fun
+      premium_in_capcut: true   # Klipix'te ucretsiz
+    - id: e008_pixelate
+      name: "Mozaik"
+      type: pixelate
+      intensity: 60
+      duration_ms: 1000
+      loop: true
+      category: fun
+      premium_in_capcut: true   # Klipix'te ucretsiz
+    - id: e009_mirror
+      name: "Ayna"
+      type: mirror
+      intensity: 68
+      duration_ms: 300
+      loop: false
+      category: light
+      premium_in_capcut: true   # Klipix'te ucretsiz
+    - id: e010_kaleido
+      name: "Kaleydoskop"
+      type: kaleido
+      intensity: 76
+      duration_ms: 500
+      loop: true
+      category: light
+      premium_in_capcut: true   # Klipix'te ucretsiz
+    - id: e011_wave
+      name: "Dalga"
+      type: wave
+      intensity: 89
+      duration_ms: 500
+      loop: false
+      category: glitch
+      premium_in_capcut: true   # Klipix'te ucretsiz
+    - id: e012_swirl
+      name: "Girdap"
+      type: swirl
+      intensity: 80
+      duration_ms: 1000
+      loop: true
+      category: fun
+      premium_in_capcut: true   # Klipix'te ucretsiz
+    - id: e013_fisheye
+      name: "Balik Gozu"
+      type: fisheye
+      intensity: 58
+      duration_ms: 500
+      loop: false
+      category: retro
+      premium_in_capcut: true   # Klipix'te ucretsiz
+    - id: e014_crt
+      name: "Eski TV"
+      type: crt
+      intensity: 81
+      duration_ms: 800
+      loop: false
+      category: motion
+      premium_in_capcut: true   # Klipix'te ucretsiz
+    - id: e015_noise
+      name: "Statik Parazit"
+      type: noise
+      intensity: 70
+      duration_ms: 300
+      loop: false
+      category: glitch
+      premium_in_capcut: true   # Klipix'te ucretsiz
+    - id: e016_grain
+      name: "Film Greni"
+      type: grain
+      intensity: 73
+      duration_ms: 1500
+      loop: false
+      category: fun
+      premium_in_capcut: true   # Klipix'te ucretsiz
+    - id: e017_light_leak
+      name: "Isik Sizintisi"
+      type: light_leak
+      intensity: 32
+      duration_ms: 1000
+      loop: true
+      category: retro
+      premium_in_capcut: true   # Klipix'te ucretsiz
+    - id: e018_sparkle
+      name: "Parilti"
+      type: sparkle
+      intensity: 67
+      duration_ms: 1500
+      loop: false
+      category: glitch
+      premium_in_capcut: true   # Klipix'te ucretsiz
+    - id: e019_rain
+      name: "Yagmur"
+      type: rain
+      intensity: 59
+      duration_ms: 300
+      loop: true
+      category: motion
+      premium_in_capcut: true   # Klipix'te ucretsiz
+    - id: e020_snow
+      name: "Kar"
+      type: snow
+      intensity: 35
+      duration_ms: 500
+      loop: true
+      category: light
+      premium_in_capcut: true   # Klipix'te ucretsiz
+    - id: e021_confetti
+      name: "Konfeti"
+      type: confetti
+      intensity: 84
+      duration_ms: 800
+      loop: false
+      category: retro
+      premium_in_capcut: true   # Klipix'te ucretsiz
+    - id: e022_hearts
+      name: "Kalp Yagmuru"
+      type: hearts
+      intensity: 95
+      duration_ms: 1500
+      loop: false
+      category: motion
+      premium_in_capcut: true   # Klipix'te ucretsiz
+    - id: e023_smoke
+      name: "Duman"
+      type: smoke
+      intensity: 41
+      duration_ms: 800
+      loop: true
+      category: fun
+      premium_in_capcut: true   # Klipix'te ucretsiz
+    - id: e024_fire
+      name: "Ates"
+      type: fire
+      intensity: 53
+      duration_ms: 1000
+      loop: false
+      category: motion
+      premium_in_capcut: true   # Klipix'te ucretsiz
+    - id: e025_toon
+      name: "Cizgi Film"
+      type: toon
+      intensity: 32
+      duration_ms: 300
+      loop: false
+      category: glitch
+      premium_in_capcut: true   # Klipix'te ucretsiz
+    - id: e026_edge
+      name: "Kenar Cizgisi"
+      type: edge
+      intensity: 58
+      duration_ms: 300
+      loop: true
+      category: glitch
+      premium_in_capcut: true   # Klipix'te ucretsiz
+    - id: e027_negate
+      name: "Negatif"
+      type: negate
+      intensity: 88
+      duration_ms: 300
+      loop: true
+      category: retro
+      premium_in_capcut: true   # Klipix'te ucretsiz
+    - id: e028_bw_flash
+      name: "Siyah Beyaz Flash"
+      type: bw_flash
+      intensity: 83
+      duration_ms: 800
+      loop: false
+      category: glitch
+      premium_in_capcut: true   # Klipix'te ucretsiz
+    - id: e029_double
+      name: "Cift Goruntu"
+      type: double
+      intensity: 97
+      duration_ms: 500
+      loop: false
+      category: light
+      premium_in_capcut: true   # Klipix'te ucretsiz
+    - id: e030_trail
+      name: "Gecikmeli Iz"
+      type: trail
+      intensity: 63
+      duration_ms: 300
+      loop: true
+      category: motion
+      premium_in_capcut: true   # Klipix'te ucretsiz
+    - id: e031_glow
+      name: "Slow Glow"
+      type: glow
+      intensity: 69
+      duration_ms: 1500
+      loop: false
+      category: motion
+      premium_in_capcut: true   # Klipix'te ucretsiz
+    - id: e032_bloom
+      name: "Parlama"
+      type: bloom
+      intensity: 87
+      duration_ms: 1500
+      loop: false
+      category: motion
+      premium_in_capcut: true   # Klipix'te ucretsiz
+    - id: e033_lens_flare
+      name: "Lens Isigi"
+      type: lens_flare
+      intensity: 74
+      duration_ms: 300
+      loop: false
+      category: glitch
+      premium_in_capcut: true   # Klipix'te ucretsiz
+    - id: e034_cam_shake
+      name: "Kamera Cekimi"
+      type: cam_shake
+      intensity: 31
+      duration_ms: 300
+      loop: false
+      category: retro
+      premium_in_capcut: true   # Klipix'te ucretsiz
+    - id: e035_dolly
+      name: "Dolly Zoom"
+      type: dolly
+      intensity: 54
+      duration_ms: 1500
+      loop: false
+      category: weather
+      premium_in_capcut: true   # Klipix'te ucretsiz
+    - id: e036_speed_lines
+      name: "Hiz Cizgileri"
+      type: speed_lines
+      intensity: 43
+      duration_ms: 1000
+      loop: false
+      category: retro
+      premium_in_capcut: true   # Klipix'te ucretsiz
+    - id: e037_red_pulse
+      name: "Vurus Kirmizi"
+      type: red_pulse
+      intensity: 80
+      duration_ms: 1500
+      loop: true
+      category: light
+      premium_in_capcut: true   # Klipix'te ucretsiz
+    - id: e038_reverse_wave
+      name: "Tersine Dalga"
+      type: reverse_wave
+      intensity: 59
+      duration_ms: 800
+      loop: true
+      category: fun
+      premium_in_capcut: true   # Klipix'te ucretsiz
+    - id: e039_frame_skip
+      name: "Kare Atlama"
+      type: frame_skip
+      intensity: 47
+      duration_ms: 1000
+      loop: false
+      category: glitch
+      premium_in_capcut: true   # Klipix'te ucretsiz
+    - id: e040_stop_motion
+      name: "Stop Motion"
+      type: stop_motion
+      intensity: 46
+      duration_ms: 300
+      loop: true
+      category: fun
+      premium_in_capcut: true   # Klipix'te ucretsiz
+    - id: e041_bokeh
+      name: "Bokeh"
+      type: bokeh
+      intensity: 62
+      duration_ms: 1000
+      loop: true
+      category: glitch
+      premium_in_capcut: true   # Klipix'te ucretsiz
+    - id: e042_starburst
+      name: "Yildiz Patlamasi"
+      type: starburst
+      intensity: 78
+      duration_ms: 1500
+      loop: false
+      category: motion
+      premium_in_capcut: true   # Klipix'te ucretsiz
+    - id: e043_pixel_rain
+      name: "Piksel Yagmuru"
+      type: pixel_rain
+      intensity: 61
+      duration_ms: 800
+      loop: true
+      category: light
+      premium_in_capcut: true   # Klipix'te ucretsiz
+    - id: e044_beat_shake
+      name: "Sarsinti Ritmi"
+      type: beat_shake
+      intensity: 50
+      duration_ms: 800
+      loop: false
+      category: motion
+      premium_in_capcut: true   # Klipix'te ucretsiz
+    - id: e045_letterbox
+      name: "Siyah Cerceve"
+      type: letterbox
+      intensity: 76
+      duration_ms: 800
+      loop: false
+      category: retro
+      premium_in_capcut: true   # Klipix'te ucretsiz
+    - id: e046_cinema_bars
+      name: "Sinema Cubugu"
+      type: cinema_bars
+      intensity: 71
+      duration_ms: 500
+      loop: true
+      category: motion
+      premium_in_capcut: true   # Klipix'te ucretsiz
+    - id: e047_night_vision
+      name: "Gece Gorusu"
+      type: night_vision
+      intensity: 57
+      duration_ms: 800
+      loop: true
+      category: motion
+      premium_in_capcut: true   # Klipix'te ucretsiz
+    - id: e048_thermal
+      name: "Termal"
+      type: thermal
+      intensity: 78
+      duration_ms: 300
+      loop: false
+      category: retro
+      premium_in_capcut: true   # Klipix'te ucretsiz
+
+transitions:
+  default_duration_ms: 600
+  items:
+    - id: t001_fade
+      name: fade
+      ffmpeg_xfade: fade
+      min_ms: 200
+      max_ms: 2000
+      easing: ease_in
+    - id: t002_wipeleft
+      name: wipeleft
+      ffmpeg_xfade: wipeleft
+      min_ms: 200
+      max_ms: 2000
+      easing: ease_in
+    - id: t003_wiperight
+      name: wiperight
+      ffmpeg_xfade: wiperight
+      min_ms: 200
+      max_ms: 2000
+      easing: linear
+    - id: t004_wipeup
+      name: wipeup
+      ffmpeg_xfade: wipeup
+      min_ms: 200
+      max_ms: 2000
+      easing: linear
+    - id: t005_wipedown
+      name: wipedown
+      ffmpeg_xfade: wipedown
+      min_ms: 200
+      max_ms: 2000
+      easing: ease_out
+    - id: t006_slideleft
+      name: slideleft
+      ffmpeg_xfade: slideleft
+      min_ms: 200
+      max_ms: 2000
+      easing: linear
+    - id: t007_slideright
+      name: slideright
+      ffmpeg_xfade: slideright
+      min_ms: 200
+      max_ms: 2000
+      easing: ease_in
+    - id: t008_slideup
+      name: slideup
+      ffmpeg_xfade: slideup
+      min_ms: 200
+      max_ms: 2000
+      easing: ease_in_out
+    - id: t009_slidedown
+      name: slidedown
+      ffmpeg_xfade: slidedown
+      min_ms: 200
+      max_ms: 2000
+      easing: linear
+    - id: t010_circlecrop
+      name: circlecrop
+      ffmpeg_xfade: circlecrop
+      min_ms: 200
+      max_ms: 2000
+      easing: ease_in_out
+    - id: t011_rectcrop
+      name: rectcrop
+      ffmpeg_xfade: rectcrop
+      min_ms: 200
+      max_ms: 2000
+      easing: linear
+    - id: t012_distance
+      name: distance
+      ffmpeg_xfade: distance
+      min_ms: 200
+      max_ms: 2000
+      easing: ease_out
+    - id: t013_fadeblack
+      name: fadeblack
+      ffmpeg_xfade: fadeblack
+      min_ms: 200
+      max_ms: 2000
+      easing: ease_out
+    - id: t014_fadewhite
+      name: fadewhite
+      ffmpeg_xfade: fadewhite
+      min_ms: 200
+      max_ms: 2000
+      easing: ease_in
+    - id: t015_radial
+      name: radial
+      ffmpeg_xfade: radial
+      min_ms: 200
+      max_ms: 2000
+      easing: linear
+    - id: t016_smoothleft
+      name: smoothleft
+      ffmpeg_xfade: smoothleft
+      min_ms: 200
+      max_ms: 2000
+      easing: ease_in
+    - id: t017_smoothright
+      name: smoothright
+      ffmpeg_xfade: smoothright
+      min_ms: 200
+      max_ms: 2000
+      easing: ease_in_out
+    - id: t018_smoothup
+      name: smoothup
+      ffmpeg_xfade: smoothup
+      min_ms: 200
+      max_ms: 2000
+      easing: ease_out
+    - id: t019_smoothdown
+      name: smoothdown
+      ffmpeg_xfade: smoothdown
+      min_ms: 200
+      max_ms: 2000
+      easing: ease_in_out
+    - id: t020_circleopen
+      name: circleopen
+      ffmpeg_xfade: circleopen
+      min_ms: 200
+      max_ms: 2000
+      easing: ease_in
+    - id: t021_circleclose
+      name: circleclose
+      ffmpeg_xfade: circleclose
+      min_ms: 200
+      max_ms: 2000
+      easing: ease_out
+    - id: t022_vertopen
+      name: vertopen
+      ffmpeg_xfade: vertopen
+      min_ms: 200
+      max_ms: 2000
+      easing: ease_in
+    - id: t023_vertclose
+      name: vertclose
+      ffmpeg_xfade: vertclose
+      min_ms: 200
+      max_ms: 2000
+      easing: linear
+    - id: t024_horzopen
+      name: horzopen
+      ffmpeg_xfade: horzopen
+      min_ms: 200
+      max_ms: 2000
+      easing: ease_in_out
+    - id: t025_horzclose
+      name: horzclose
+      ffmpeg_xfade: horzclose
+      min_ms: 200
+      max_ms: 2000
+      easing: ease_in
+    - id: t026_dissolve
+      name: dissolve
+      ffmpeg_xfade: dissolve
+      min_ms: 200
+      max_ms: 2000
+      easing: linear
+    - id: t027_pixelize
+      name: pixelize
+      ffmpeg_xfade: pixelize
+      min_ms: 200
+      max_ms: 2000
+      easing: ease_in
+    - id: t028_diagtl
+      name: diagtl
+      ffmpeg_xfade: diagtl
+      min_ms: 200
+      max_ms: 2000
+      easing: linear
+    - id: t029_diagtr
+      name: diagtr
+      ffmpeg_xfade: diagtr
+      min_ms: 200
+      max_ms: 2000
+      easing: linear
+    - id: t030_diagbl
+      name: diagbl
+      ffmpeg_xfade: diagbl
+      min_ms: 200
+      max_ms: 2000
+      easing: linear
+    - id: t031_diagbr
+      name: diagbr
+      ffmpeg_xfade: diagbr
+      min_ms: 200
+      max_ms: 2000
+      easing: ease_in
+    - id: t032_hlslice
+      name: hlslice
+      ffmpeg_xfade: hlslice
+      min_ms: 200
+      max_ms: 2000
+      easing: ease_out
+    - id: t033_hrslice
+      name: hrslice
+      ffmpeg_xfade: hrslice
+      min_ms: 200
+      max_ms: 2000
+      easing: linear
+    - id: t034_vuslice
+      name: vuslice
+      ffmpeg_xfade: vuslice
+      min_ms: 200
+      max_ms: 2000
+      easing: ease_in_out
+    - id: t035_vdslice
+      name: vdslice
+      ffmpeg_xfade: vdslice
+      min_ms: 200
+      max_ms: 2000
+      easing: ease_in_out
+    - id: t036_hblur
+      name: hblur
+      ffmpeg_xfade: hblur
+      min_ms: 200
+      max_ms: 2000
+      easing: linear
+    - id: t037_fadegrays
+      name: fadegrays
+      ffmpeg_xfade: fadegrays
+      min_ms: 200
+      max_ms: 2000
+      easing: linear
+    - id: t038_wipetl
+      name: wipetl
+      ffmpeg_xfade: wipetl
+      min_ms: 200
+      max_ms: 2000
+      easing: ease_in
+    - id: t039_wipetr
+      name: wipetr
+      ffmpeg_xfade: wipetr
+      min_ms: 200
+      max_ms: 2000
+      easing: ease_in_out
+    - id: t040_wipebl
+      name: wipebl
+      ffmpeg_xfade: wipebl
+      min_ms: 200
+      max_ms: 2000
+      easing: ease_out
+    - id: t041_wipebr
+      name: wipebr
+      ffmpeg_xfade: wipebr
+      min_ms: 200
+      max_ms: 2000
+      easing: linear
+    - id: t042_squeezeh
+      name: squeezeh
+      ffmpeg_xfade: squeezeh
+      min_ms: 200
+      max_ms: 2000
+      easing: ease_in_out
+    - id: t043_squeezev
+      name: squeezev
+      ffmpeg_xfade: squeezev
+      min_ms: 200
+      max_ms: 2000
+      easing: linear
+    - id: t044_zoomin
+      name: zoomin
+      ffmpeg_xfade: zoomin
+      min_ms: 200
+      max_ms: 2000
+      easing: linear
+
+text:
+  fonts:
+    - { family: "Inter", source: google_fonts, bundled: false }
+    - { family: "Roboto", source: google_fonts, bundled: false }
+    - { family: "Poppins", source: google_fonts, bundled: false }
+    - { family: "Montserrat", source: google_fonts, bundled: false }
+    - { family: "Oswald", source: google_fonts, bundled: false }
+    - { family: "Lobster", source: google_fonts, bundled: false }
+    - { family: "Pacifico", source: google_fonts, bundled: false }
+    - { family: "Bebas Neue", source: google_fonts, bundled: false }
+    - { family: "Anton", source: google_fonts, bundled: false }
+    - { family: "Raleway", source: google_fonts, bundled: false }
+    - { family: "Playfair Display", source: google_fonts, bundled: false }
+    - { family: "Merriweather", source: google_fonts, bundled: false }
+    - { family: "Dancing Script", source: google_fonts, bundled: false }
+    - { family: "Caveat", source: google_fonts, bundled: false }
+    - { family: "Permanent Marker", source: google_fonts, bundled: false }
+    - { family: "Bangers", source: google_fonts, bundled: false }
+    - { family: "Righteous", source: google_fonts, bundled: false }
+    - { family: "Fredoka", source: google_fonts, bundled: false }
+    - { family: "Nunito", source: google_fonts, bundled: false }
+    - { family: "Lato", source: google_fonts, bundled: false }
+    - { family: "Open Sans", source: google_fonts, bundled: false }
+    - { family: "Source Sans 3", source: google_fonts, bundled: false }
+    - { family: "Archivo Black", source: google_fonts, bundled: false }
+    - { family: "Abril Fatface", source: google_fonts, bundled: false }
+  animations:
+    - id: ta_fade_in
+      kind: loop
+      duration_ms: 300
+      easing: ease_out
+      per_char: false
+    - id: ta_slide_up
+      kind: loop
+      duration_ms: 1000
+      easing: ease_out
+      per_char: false
+    - id: ta_slide_down
+      kind: out
+      duration_ms: 300
+      easing: ease_out
+      per_char: false
+    - id: ta_slide_left
+      kind: out
+      duration_ms: 500
+      easing: ease_out
+      per_char: false
+    - id: ta_slide_right
+      kind: loop
+      duration_ms: 500
+      easing: ease_out
+      per_char: false
+    - id: ta_pop
+      kind: in
+      duration_ms: 1000
+      easing: ease_out
+      per_char: false
+    - id: ta_bounce
+      kind: out
+      duration_ms: 1000
+      easing: ease_out
+      per_char: false
+    - id: ta_typewriter
+      kind: in
+      duration_ms: 1000
+      easing: ease_out
+      per_char: true
+    - id: ta_zoom_in
+      kind: loop
+      duration_ms: 700
+      easing: ease_out
+      per_char: false
+    - id: ta_zoom_out
+      kind: in
+      duration_ms: 500
+      easing: ease_out
+      per_char: false
+    - id: ta_spin
+      kind: in
+      duration_ms: 500
+      easing: ease_out
+      per_char: false
+    - id: ta_flip
+      kind: out
+      duration_ms: 700
+      easing: ease_out
+      per_char: false
+    - id: ta_glitch_in
+      kind: loop
+      duration_ms: 700
+      easing: ease_out
+      per_char: false
+    - id: ta_wave
+      kind: loop
+      duration_ms: 500
+      easing: ease_out
+      per_char: true
+    - id: ta_shake
+      kind: in
+      duration_ms: 1000
+      easing: ease_out
+      per_char: false
+    - id: ta_blur_in
+      kind: in
+      duration_ms: 1000
+      easing: ease_out
+      per_char: false
+    - id: ta_drop
+      kind: out
+      duration_ms: 300
+      easing: ease_out
+      per_char: false
+    - id: ta_rise
+      kind: loop
+      duration_ms: 500
+      easing: ease_out
+      per_char: false
+    - id: ta_stretch
+      kind: loop
+      duration_ms: 1000
+      easing: ease_out
+      per_char: false
+    - id: ta_squeeze
+      kind: out
+      duration_ms: 700
+      easing: ease_out
+      per_char: false
+    - id: ta_reveal_left
+      kind: out
+      duration_ms: 1000
+      easing: ease_out
+      per_char: false
+    - id: ta_reveal_right
+      kind: out
+      duration_ms: 300
+      easing: ease_out
+      per_char: false
+    - id: ta_karaoke
+      kind: loop
+      duration_ms: 500
+      easing: ease_out
+      per_char: true
+    - id: ta_word_by_word
+      kind: out
+      duration_ms: 300
+      easing: ease_out
+      per_char: false
+    - id: ta_letter_by_letter
+      kind: out
+      duration_ms: 300
+      easing: ease_out
+      per_char: true
+    - id: ta_pulse
+      kind: out
+      duration_ms: 1000
+      easing: ease_out
+      per_char: false
+    - id: ta_flash
+      kind: in
+      duration_ms: 1000
+      easing: ease_out
+      per_char: false
+    - id: ta_neon_flicker
+      kind: out
+      duration_ms: 1000
+      easing: ease_out
+      per_char: false
+    - id: ta_rainbow
+      kind: in
+      duration_ms: 500
+      easing: ease_out
+      per_char: false
+    - id: ta_wobble
+      kind: in
+      duration_ms: 300
+      easing: ease_out
+      per_char: false
+  styles:
+    duz: { color: "#FFFFFF", background: "none", stroke: 0, shadow: false }
+    kontur: { color: "#FFFFFF", background: "none", stroke: 2, shadow: false }
+    golge: { color: "#FFFFFF", background: "none", stroke: 0, shadow: true }
+    neon: { color: "#39FF14", background: "none", stroke: 0, shadow: false }
+    kutulu: { color: "#FFFFFF", background: "#000000AA", stroke: 0, shadow: false }
+    vurgu: { color: "#f93838", background: "none", stroke: 0, shadow: false }
+    altin: { color: "#FFD700", background: "none", stroke: 0, shadow: false }
+    retro: { color: "#FF6EC7", background: "#2B1B4D", stroke: 0, shadow: false }
+
+stickers:
+  source: bundled_open_licenses
+  categories:
+    - { id: emoji, count: 29, animated: false }
+    - { id: kalp, count: 36, animated: false }
+    - { id: yildiz, count: 28, animated: false }
+    - { id: ok, count: 60, animated: false }
+    - { id: cerceve, count: 76, animated: true }
+    - { id: konusma_balonu, count: 43, animated: true }
+    - { id: sosyal_medya, count: 77, animated: false }
+    - { id: abone_ol, count: 45, animated: true }
+    - { id: begen, count: 20, animated: false }
+    - { id: zil, count: 63, animated: true }
+    - { id: geri_sayim, count: 39, animated: false }
+    - { id: tarih, count: 46, animated: true }
+    - { id: hava_durumu, count: 40, animated: true }
+    - { id: yemek, count: 41, animated: true }
+    - { id: spor, count: 68, animated: true }
+    - { id: oyun, count: 45, animated: true }
+    - { id: muzik, count: 79, animated: true }
+    - { id: hayvan, count: 20, animated: false }
+    - { id: dogum_gunu, count: 38, animated: true }
+    - { id: bayram, count: 24, animated: true }
+    - { id: azerbaycan, count: 75, animated: false }
+    - { id: turkiye, count: 43, animated: false }
+    - { id: minecraft_tarzi, count: 68, animated: true }
+    - { id: piksel, count: 23, animated: true }
+
+audio:
+  import_from_device: true
+  formats: [mp3, wav, aac, m4a, ogg, flac]
+  sound_effects: { bundled: true, license: CC0, categories: [whoosh, pop, click, boom, laugh, applause, riser, impact, glitch, ding] }
+  music_library: { enabled: false, note: "Telif sorunu; kullanici kendi muzigini ekler" }
+  loudness_normalize: { enabled: true, target_lufs: -14 }
+  noise_reduction: { enabled: true, ffmpeg: "afftdn=nf=-25" }
+
+export:
+  engine: ffmpeg
+  hardware_accel: true
+  presets:
+    - id: tiktok
+      width: 1080
+      height: 1920
+      fps: 30
+      bitrate_kbps: 8000
+      codec: h264
+      audio: { codec: aac, bitrate_kbps: 192 }
+      watermark: false
+    - id: reels
+      width: 1080
+      height: 1920
+      fps: 30
+      bitrate_kbps: 8000
+      codec: h264
+      audio: { codec: aac, bitrate_kbps: 192 }
+      watermark: false
+    - id: shorts
+      width: 1080
+      height: 1920
+      fps: 60
+      bitrate_kbps: 10000
+      codec: h264
+      audio: { codec: aac, bitrate_kbps: 192 }
+      watermark: false
+    - id: youtube_1080
+      width: 1920
+      height: 1080
+      fps: 30
+      bitrate_kbps: 12000
+      codec: h264
+      audio: { codec: aac, bitrate_kbps: 192 }
+      watermark: false
+    - id: youtube_4k
+      width: 3840
+      height: 2160
+      fps: 30
+      bitrate_kbps: 35000
+      codec: h264
+      audio: { codec: aac, bitrate_kbps: 192 }
+      watermark: false
+    - id: whatsapp_status
+      width: 720
+      height: 1280
+      fps: 30
+      bitrate_kbps: 4000
+      codec: h264
+      audio: { codec: aac, bitrate_kbps: 192 }
+      watermark: false
+    - id: telegram
+      width: 720
+      height: 1280
+      fps: 30
+      bitrate_kbps: 3500
+      codec: h264
+      audio: { codec: aac, bitrate_kbps: 192 }
+      watermark: false
+    - id: kucuk_boyut
+      width: 480
+      height: 854
+      fps: 24
+      bitrate_kbps: 1500
+      codec: h264
+      audio: { codec: aac, bitrate_kbps: 192 }
+      watermark: false
+    - id: kare_1_1
+      width: 1080
+      height: 1080
+      fps: 30
+      bitrate_kbps: 6000
+      codec: h264
+      audio: { codec: aac, bitrate_kbps: 192 }
+      watermark: false
+    - id: sinema_21_9
+      width: 2560
+      height: 1080
+      fps: 24
+      bitrate_kbps: 14000
+      codec: h264
+      audio: { codec: aac, bitrate_kbps: 192 }
+      watermark: false
+
+gestures:
+  tap_preview: play_pause
+  double_tap_preview: toggle_fullscreen
+  pinch_preview: zoom
+  pinch_timeline: zoom_timeline
+  long_press_clip: drag_mode
+  swipe_left_clip: delete_clip
+  two_finger_tap: undo
+  three_finger_tap: redo
+
+kli:
+  display_name: Kli
+  enabled: true
+  provider: gemini
+  model: gemini-2.5-flash
+  # API anahtari dosyada ve APK'da YOK. Kullanici uygulamanin icine kendisi yazar.
+  api_key:
+    source: user_input
+    storage: secure_storage      # flutter_secure_storage (Android Keystore)
+    store_on_device_only: true
+    required_for_kli: true
+  endpoint: https://generativelanguage.googleapis.com/v1beta
+  temperature: 0.7
+  max_output_tokens: 1024
+  timeout_seconds: 30
+  language: auto   # kullanici hangi dilde yazarsa o dilde cevap
+  personality: "Samimi, kisa konusan, enerjik bir kurgu arkadasi"
+  confirm_before_apply: true   # degisiklik yapmadan once onay sor
+  undo_after_apply: true
+  system_prompt: |
+    Sen Kli'sin, Klipix video editorunun yapay zeka asistanisin.
+    Kullanici dogal dille bir sey isteyince bunu asagidaki 'actions' listesinden
+    bir veya birkac eyleme cevirirsin ve SADECE JSON dondurursun.
+    Format: {"reply": "kisa mesaj", "actions": [{"name": "...", "args": {...}}]}
+    Bilmedigin bir eylem uydurma. Emin degilsen sor.
+    Projeyi bozacak eylemlerden once reply icinde uyar.
+    'Surpriz yap' denirse zevkli ama asiri olmayan 2-4 eylem sec.
+    'Ne yakisir' denirse once oneri ver, uygulamadan onay bekle.
+    Her zaman Turkce yaz, kullanici baska dil kullanirsa o dile gec.
+  context_sent_to_model:
+    project_summary: true      # klip sayisi, sureler, uygulanan efektler
+    selected_clip: true
+    video_frames: false        # varsayilan kapali, gizlilik icin
+    thumbnails: true
+  actions:
+    - name: slow_motion
+      description: "Secili klibi yavaslat"
+      args:
+        clip: "selected|id"
+        speed: "0.1-1.0"
+        smooth: "bool"
+      reversible: true
+    - name: fast_forward
+      description: "Hizlandir"
+      args:
+        clip: "selected|id"
+        speed: "1.0-100"
+      reversible: true
+    - name: add_transition
+      description: "Iki klip arasina gecis ekle"
+      args:
+        between: "[clipA, clipB]"
+        transition: "transition_id"
+        duration_ms: "int"
+      reversible: true
+    - name: add_effect
+      description: "Efekt ekle"
+      args:
+        clip: "selected|id"
+        effect: "effect_id"
+        intensity: "0-100"
+      reversible: true
+    - name: apply_filter
+      description: "Filtre uygula"
+      args:
+        clip: "selected|id|all"
+        filter: "filter_id"
+        intensity: "0-100"
+      reversible: true
+    - name: add_text
+      description: "Metin ekle"
+      args:
+        text: "string"
+        start_ms: "int"
+        duration_ms: "int"
+        style: "style_id"
+        animation: "anim_id"
+      reversible: true
+    - name: add_sticker
+      description: "Cikartma ekle"
+      args:
+        sticker: "id"
+        start_ms: "int"
+        position: "[x,y]"
+      reversible: true
+    - name: cut_at
+      description: "Belirli anda kes"
+      args:
+        at_ms: "int"
+      reversible: true
+    - name: trim
+      description: "Kirp"
+      args:
+        clip: "id"
+        start_ms: "int"
+        end_ms: "int"
+      reversible: true
+    - name: delete_clip
+      description: "Klibi sil"
+      args:
+        clip: "id"
+      reversible: true
+    - name: reverse
+      description: "Ters cevir"
+      args:
+        clip: "selected|id"
+      reversible: true
+    - name: set_volume
+      description: "Ses ayarla"
+      args:
+        clip: "id"
+        volume: "0-200"
+      reversible: true
+    - name: auto_caption
+      description: "Otomatik altyazi olustur"
+      args:
+        language: "tr|en|auto"
+        style: "style_id"
+      reversible: true
+    - name: change_aspect
+      description: "Oran degistir"
+      args:
+        ratio: "9:16|16:9|1:1|4:5|21:9"
+      reversible: true
+    - name: suggest
+      description: "Oneri ver (uygulamaz)"
+      args:
+        topic: "filter|effect|transition|music|text"
+        count: "int"
+      reversible: true
+    - name: surprise
+      description: "Rastgele zevkli duzenleme"
+      args:
+        intensity: "low|medium|high"
+        max_actions: "int"
+      reversible: true
+    - name: export
+      description: "Disa aktar"
+      args:
+        preset: "preset_id"
+      reversible: true
+    - name: undo
+      description: "Geri al"
+      args: {}
+      reversible: true
+  quick_prompts:
+    - "Slow motion ekle"
+    - "Gecis ekle"
+    - "Bu videoya ne yakisir?"
+    - "Surpriz yap"
+    - "Altyazi ekle"
+    - "Daha sinematik yap"
+    - "Daha enerjik yap"
+    - "Sessiz kisimlari kes"
+    - "Hepsini 9:16 yap"
+    - "Muzige gore kes"
+  examples:
+    - { user: "kli slow motion ekle", action: slow_motion }
+    - { user: "kli gecis ekle", action: add_transition }
+    - { user: "kli ne yakisir", action: suggest }
+    - { user: "kli surpriz yap", action: surprise }
+    - { user: "kli altyazi ekle", action: auto_caption }
+    - { user: "kli bunu ters cevir", action: reverse }
+    - { user: "kli 9:16 yap", action: change_aspect }
+    - { user: "kli disa aktar tiktok", action: export }
+  safety:
+    never_delete_project: true
+    max_actions_per_request: 6
+    rate_limit_per_minute: 15
+    log_prompts_locally: false
+
+localization:
+  tr:
+    new_project: "Yeni Proje"
+    export: "Disa Aktar"
+    undo: "Geri Al"
+    redo: "Ileri Al"
+    cut: "Kes"
+    speed: "Hiz"
+    text: "Metin"
+    audio: "Ses"
+    filter: "Filtre"
+    effect: "Efekt"
+    transition: "Gecis"
+    sticker: "Cikartma"
+    settings: "Ayarlar"
+    kli_hint: "Kli'ye bir sey sor..."
+    saved: "Kaydedildi"
+    exporting: "Disa aktariliyor..."
+  en:
+    new_project: "New Project"
+    export: "Export"
+    undo: "Undo"
+    redo: "Redo"
+    cut: "Cut"
+    speed: "Speed"
+    text: "Text"
+    audio: "Audio"
+    filter: "Filter"
+    effect: "Effect"
+    transition: "Transition"
+    sticker: "Sticker"
+    settings: "Settings"
+    kli_hint: "Ask Kli anything..."
+    saved: "Saved"
+    exporting: "Exporting..."
+
+storage:
+  projects_dir: Klipix/Projects
+  cache_dir: Klipix/Cache
+  max_cache_mb: 2048
+  autosave_interval_seconds: 20
+
+changelog:
+  - { version: 0.1.0, notes: "Ilk surum: temel kurgu, filtre/efekt/gecis, Kli asistani" }
+
+templates:
+  items:
+    - id: tpl001
+      name: "Gunluk Vlog"
+      ratio: "16:9"
+      slots: 11
+      duration_s: 60
+      filter: f029
+      transition: t033
+    - id: tpl002
+      name: "Seyahat Ozeti"
+      ratio: "1:1"
+      slots: 6
+      duration_s: 30
+      filter: f052
+      transition: t033
+    - id: tpl003
+      name: "Yemek Tarifi"
+      ratio: "16:9"
+      slots: 12
+      duration_s: 30
+      filter: f007
+      transition: t029
+    - id: tpl004
+      name: "Oyun Klibi"
+      ratio: "16:9"
+      slots: 5
+      duration_s: 15
+      filter: f035
+      transition: t041
+    - id: tpl005
+      name: "Minecraft Montaj"
+      ratio: "9:16"
+      slots: 12
+      duration_s: 60
+      filter: f029
+      transition: t042
+    - id: tpl006
+      name: "Dogum Gunu"
+      ratio: "1:1"
+      slots: 12
+      duration_s: 30
+      filter: f040
+      transition: t001
+    - id: tpl007
+      name: "Mezuniyet"
+      ratio: "1:1"
+      slots: 4
+      duration_s: 15
+      filter: f003
+      transition: t013
+    - id: tpl008
+      name: "Spor Antrenman"
+      ratio: "9:16"
+      slots: 12
+      duration_s: 15
+      filter: f050
+      transition: t030
+    - id: tpl009
+      name: "Urun Tanitimi"
+      ratio: "16:9"
+      slots: 10
+      duration_s: 30
+      filter: f034
+      transition: t015
+    - id: tpl010
+      name: "Ders Ozeti"
+      ratio: "1:1"
+      slots: 7
+      duration_s: 60
+      filter: f001
+      transition: t043
+    - id: tpl011
+      name: "Muzik Klibi"
+      ratio: "9:16"
+      slots: 10
+      duration_s: 45
+      filter: f027
+      transition: t036
+    - id: tpl012
+      name: "Surpriz Kutlama"
+      ratio: "9:16"
+      slots: 7
+      duration_s: 45
+      filter: f049
+      transition: t015
+    - id: tpl013
+      name: "Evcil Hayvan"
+      ratio: "1:1"
+      slots: 7
+      duration_s: 15
+      filter: f005
+      transition: t037
+    - id: tpl014
+      name: "Moda Lookbook"
+      ratio: "9:16"
+      slots: 9
+      duration_s: 15
+      filter: f055
+      transition: t019
+    - id: tpl015
+      name: "Sinematik Fragman"
+      ratio: "16:9"
+      slots: 4
+      duration_s: 15
+      filter: f055
+      transition: t044
+    - id: tpl016
+      name: "Haber Bulteni"
+      ratio: "9:16"
+      slots: 6
+      duration_s: 30
+      filter: f060
+      transition: t004
+    - id: tpl017
+      name: "Komik Montaj"
+      ratio: "16:9"
+      slots: 9
+      duration_s: 60
+      filter: f027
+      transition: t005
+    - id: tpl018
+      name: "Foto Slayt"
+      ratio: "1:1"
+      slots: 6
+      duration_s: 45
+      filter: f022
+      transition: t006
+    - id: tpl019
+      name: "Once Sonra"
+      ratio: "16:9"
+      slots: 8
+      duration_s: 15
+      filter: f027
+      transition: t008
+    - id: tpl020
+      name: "Geri Sayim"
+      ratio: "9:16"
+      slots: 6
+      duration_s: 15
+      filter: f001
+      transition: t004
+    - id: tpl021
+      name: "Podcast Klibi"
+      ratio: "16:9"
+      slots: 10
+      duration_s: 30
+      filter: f044
+      transition: t036
+    - id: tpl022
+      name: "Bayram Mesaji"
+      ratio: "9:16"
+      slots: 10
+      duration_s: 30
+      filter: f047
+      transition: t009
+    - id: tpl023
+      name: "Dugun"
+      ratio: "16:9"
+      slots: 9
+      duration_s: 15
+      filter: f026
+      transition: t027
+    - id: tpl024
+      name: "Dogal Manzara"
+      ratio: "9:16"
+      slots: 3
+      duration_s: 45
+      filter: f056
+      transition: t038
+    - id: tpl025
+      name: "Sehir Turu"
+      ratio: "16:9"
+      slots: 3
+      duration_s: 30
+      filter: f012
+      transition: t026
+    - id: tpl026
+      name: "Teknoloji Inceleme"
+      ratio: "1:1"
+      slots: 12
+      duration_s: 15
+      filter: f003
+      transition: t010
+    - id: tpl027
+      name: "Challenge"
+      ratio: "9:16"
+      slots: 10
+      duration_s: 45
+      filter: f001
+      transition: t040
+    - id: tpl028
+      name: "Tutorial"
+      ratio: "16:9"
+      slots: 7
+      duration_s: 60
+      filter: f005
+      transition: t005
+    - id: tpl029
+      name: "Gece Hayati"
+      ratio: "9:16"
+      slots: 6
+      duration_s: 30
+      filter: f001
+      transition: t039
+    - id: tpl030
+      name: "Kisa Film"
+      ratio: "16:9"
+      slots: 8
+      duration_s: 60
+      filter: f009
+      transition: t038
+
+easing_curves:
+  linear: { bezier: [0.48, 0.57, 0.87, 0.18] }
+  ease_in: { bezier: [0.15, 0.91, 0.82, 0.25] }
+  ease_out: { bezier: [0.19, 0.74, 0.94, 0.2] }
+  ease_in_out: { bezier: [0.95, 0.88, 0.6, 0.42] }
+  bounce: { bezier: [0.1, 0.04, 0.96, 0.24] }
+  elastic: { bezier: [0.7, 0.26, 0.82, 0.6] }
+  back: { bezier: [0.29, 0.18, 0.72, 0.07] }
+  expo: { bezier: [0.23, 0.56, 0.85, 0.61] }
+  circ: { bezier: [0.28, 0.92, 0.2, 0.02] }
+  sine: { bezier: [0.27, 0.45, 0.06, 0.18] }
+  quad: { bezier: [0.37, 0.57, 0.13, 0.36] }
+  cubic: { bezier: [0.89, 0.98, 0.66, 0.69] }
+  quart: { bezier: [0.58, 0.14, 0.04, 0.02] }
+  quint: { bezier: [0.91, 0.7, 0.96, 0.02] }
+
+shortcuts:
+  split: { gesture: split_g, haptic: light, visible_hint: true }
+  delete: { gesture: delete_g, haptic: light, visible_hint: true }
+  duplicate: { gesture: duplicate_g, haptic: light, visible_hint: true }
+  undo: { gesture: undo_g, haptic: light, visible_hint: true }
+  redo: { gesture: redo_g, haptic: light, visible_hint: true }
+  play: { gesture: play_g, haptic: light, visible_hint: true }
+  zoom_in: { gesture: zoom_in_g, haptic: light, visible_hint: true }
+  zoom_out: { gesture: zoom_out_g, haptic: light, visible_hint: true }
+  snap_toggle: { gesture: snap_toggle_g, haptic: light, visible_hint: true }
+  export: { gesture: export_g, haptic: light, visible_hint: true }
+
+kli_setup:
+  # Ilk kez Kli'ye basinca veya Ayarlar > Kli API bolumunde gosterilir
+  screen:
+    title: "Kli'yi Etkinlestir"
+    description: "Gemini API anahtarini yapistir. Anahtar sadece bu telefonda saklanir."
+    fields:
+      - id: gemini_api_key
+        label: "Gemini API Anahtari"
+        type: password
+        paste_button: true
+        show_hide_toggle: true
+        placeholder: "AIza..."
+        validate_regex: "^AIza[0-9A-Za-z_\\-]{20,}$"
+    buttons:
+      - { id: test, label: "Test Et", action: send_test_request }
+      - { id: save, label: "Kaydet", action: save_to_secure_storage, primary: true }
+      - { id: delete, label: "Anahtari Sil", action: delete_from_secure_storage, danger: true }
+    help_link: "https://aistudio.google.com/apikey"
+    help_text: "Ucretsiz anahtar almak icin Google AI Studio'yu ac."
+  behavior:
+    ask_on_first_kli_tap: true
+    mask_key_in_ui: true
+    never_log_key: true
+    never_include_in_export: true
+    never_include_in_project_files: true
+  errors:
+    missing_key: "Kli icin once API anahtari gir."
+    invalid_key: "Anahtar gecersiz gorunuyor."
+    quota_exceeded: "Kota doldu, biraz bekle."
+    network: "Internet baglantisi yok."
